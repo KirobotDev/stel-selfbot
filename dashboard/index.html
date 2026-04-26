@@ -1,0 +1,888 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Selfbot.Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --pma-orange: #f37021;
+            --pma-orange-light: #ffebdf;
+            --pma-gray-bg: #f8f8f8;
+            --pma-border: #d3d3d3;
+        }
+
+        body { 
+            font-family: Arial, Helvetica, sans-serif; 
+            background: #fff; 
+            color: #000; 
+            margin: 0; 
+            padding: 0;
+            font-size: 12px;
+            overflow: hidden;
+        }
+
+        #root { 
+            display: flex; 
+            height: 100vh; 
+            width: 100vw;
+        }
+
+        /* Sidebar Navigation Panel */
+        .pma-sidebar {
+            width: 260px;
+            background-color: var(--pma-gray-bg);
+            border-right: 1px solid var(--pma-border);
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .pma-sidebar-header {
+            padding: 12px 10px;
+            background: #fff;
+            border-bottom: 2px solid var(--pma-orange);
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+        }
+
+        .pma-logo-text {
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--pma-orange);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .pma-logo-version {
+            font-size: 10px;
+            color: #666;
+            font-weight: normal;
+        }
+
+        .pma-sidebar-actions {
+            display: flex;
+            justify-content: space-around;
+            padding: 6px 0;
+            border-bottom: 1px solid #ccc;
+            background: #f0f0f0;
+        }
+
+        .pma-action-btn {
+            cursor: pointer;
+            color: #555;
+            padding: 3px 6px;
+            border-radius: 3px;
+        }
+
+        .pma-action-btn:hover {
+            color: #000;
+            background: #e0e0e0;
+        }
+
+        .pma-tree-container {
+            padding: 10px 0;
+            flex-grow: 1;
+        }
+
+        .pma-tree-item {
+            padding: 4px 15px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 11.5px;
+        }
+
+        .pma-tree-item:hover {
+            background-color: #ececec;
+            text-decoration: underline;
+        }
+
+        .pma-tree-item.active {
+            font-weight: bold;
+            background-color: #e5e5e5;
+        }
+
+        .pma-tree-db {
+            font-weight: bold;
+            color: var(--pma-orange);
+            font-size: 12px;
+        }
+
+        .pma-tree-table {
+            padding-left: 32px;
+            color: #444;
+        }
+
+        .pma-main {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            background-color: #fff;
+            position: relative;
+        }
+
+        .pma-top-bar {
+            background-color: #f0f0f0;
+            border-bottom: 1px solid #ccc;
+            padding: 8px 15px;
+            flex-shrink: 0;
+        }
+
+        .pma-breadcrumbs {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .pma-breadcrumb-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #004488;
+        }
+
+        .pma-breadcrumb-item:hover {
+            text-decoration: underline;
+            cursor: pointer;
+        }
+
+        .pma-breadcrumb-item.current {
+            color: #000;
+            font-weight: bold;
+            text-decoration: none;
+            cursor: default;
+        }
+
+        .pma-tabs {
+            display: flex;
+            gap: 2px;
+            margin-bottom: -1px;
+        }
+
+        .pma-tab {
+            padding: 7px 16px;
+            background: #e8e8e8;
+            border: 1px solid #bbb;
+            border-bottom: none;
+            cursor: pointer;
+            font-size: 11px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            border-radius: 4px 4px 0 0;
+            color: #555;
+        }
+
+        .pma-tab.active {
+            background: #fff;
+            border-bottom: 2px solid #fff;
+            font-weight: bold;
+            color: #000;
+        }
+
+        .pma-viewport {
+            flex-grow: 1;
+            padding: 25px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .pma-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+        }
+
+        .pma-card {
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            background: #fafafa;
+        }
+
+        .pma-card-header {
+            background: #eee;
+            padding: 8px 12px;
+            border-bottom: 1px solid #ccc;
+            font-weight: bold;
+            font-size: 13px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .pma-card-body {
+            padding: 12px;
+        }
+
+        .pma-kv-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .pma-kv-table td {
+            padding: 5px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .pma-kv-label {
+            font-weight: bold;
+            width: 150px;
+            color: #444;
+        }
+
+        .status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+        .status-online { background: #23a55a; }
+        .status-idle { background: #f0b232; }
+        .status-dnd { background: #f23f43; }
+        .status-offline { background: #80848e; }
+
+        .pma-data-table-container {
+            border: 1px solid #bbb;
+            margin-top: 10px;
+        }
+
+        table.pma-data-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        table.pma-data-table th {
+            background: #eee;
+            border: 1px solid #bbb;
+            padding: 8px 10px;
+            text-align: left;
+            color: #444;
+        }
+
+        table.pma-data-table td {
+            border: 1px solid #bbb;
+            padding: 6px 10px;
+        }
+
+        table.pma-data-table tr:nth-child(odd) { background: #fff; }
+        table.pma-data-table tr:nth-child(even) { background: #f9f9f9; }
+        table.pma-data-table tr:hover { background: #feffea; }
+
+        .pma-terminal-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: #2b2d31; 
+            color: #fff;
+            font-family: 'Consolas', 'Monaco', monospace;
+            z-index: 1000;
+            transition: height 0.2s;
+        }
+
+        .pma-terminal-header {
+            background: #1e1f22;
+            padding: 6px 15px;
+            font-size: 11px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .pma-terminal-body {
+            height: 200px;
+            padding: 10px;
+            overflow-y: auto;
+            font-size: 12px;
+            border-bottom: 2px solid var(--pma-orange);
+            background: #0c0d0e; 
+        }
+
+        .pma-terminal-input-row {
+            padding: 8px 12px;
+            background: #0c0d0e;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .pma-terminal-prompt {
+            color: var(--pma-orange);
+            font-weight: bold;
+        }
+
+        .pma-terminal-input {
+            background: transparent;
+            border: none;
+            color: #fff;
+            width: 100%;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .log-ok { color: #00ff00; font-weight: bold; } 
+        .log-error { color: #ff3333; font-weight: bold; } 
+        .log-info { color: #ffffff; } 
+
+        .pma-input {
+            padding: 6px 10px;
+            border: 1px solid #bbb;
+            border-radius: 2px;
+            font-size: 12px;
+        }
+
+        .pma-btn {
+            padding: 6px 15px;
+            background: #f0f0f0;
+            border: 1px solid #bbb;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 11px;
+            border-radius: 2px;
+        }
+
+        .pma-btn:hover { background: #e0e0e0; }
+
+        .friend-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        .friend-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 1px solid #ccc;
+        }
+
+        .video-box {
+            border: 1px solid #ccc;
+            background: #eee;
+            margin-top: 15px;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .video-box header {
+            padding: 8px;
+            font-weight: bold;
+            background: #ddd;
+            border-bottom: 1px solid #ccc;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        const App = () => {
+            const [view, setView] = useState('home'); 
+            const [activeTab, setActiveTab] = useState('browse');
+            const [status, setStatus] = useState(null);
+            const [friends, setFriends] = useState([]);
+            const [config, setConfig] = useState({ token: '', prefix: '+' });
+            const [databases, setDatabases] = useState({ files: [], current: '' });
+            const [tables, setTables] = useState([]);
+            const [activeTable, setActiveTable] = useState(null);
+            const [tableData, setTableData] = useState({ columns: [], rows: [] });
+            const [logs, setLogs] = useState([]);
+            const [terminalOpen, setTerminalOpen] = useState(false);
+            const [cmdInput, setCmdInput] = useState('');
+            const [searchQuery, setSearchQuery] = useState('');
+            const [multistatusActive, setMultistatusActive] = useState(false);
+
+            const logsEndRef = useRef(null);
+
+            useEffect(() => {
+                fetchStatus();
+                fetchConfig();
+                fetchDatabases();
+                fetchMultistatusConfig();
+                
+                const statsInterval = setInterval(fetchStatus, 5000);
+                const logsInterval = setInterval(fetchLogs, 2000);
+                
+                return () => {
+                    clearInterval(statsInterval);
+                    clearInterval(logsInterval);
+                };
+            }, []);
+
+            useEffect(() => {
+                if (terminalOpen) logsEndRef.current?.scrollIntoView({ behavior: "smooth" });
+            }, [logs, terminalOpen]);
+
+            const fetchStatus = () => {
+                fetch('/api/status').then(res => res.json()).then(setStatus);
+            };
+
+            const fetchLogs = () => {
+                fetch('/api/logs').then(res => res.json()).then(setLogs);
+            };
+
+            const fetchFriends = () => {
+                fetch('/api/social/friends').then(res => res.json()).then(setFriends);
+            };
+
+            const fetchConfig = () => {
+                fetch('/api/config').then(res => res.json()).then(setConfig);
+            };
+
+            const fetchMultistatusConfig = () => {
+                fetch('/api/multistatus/config').then(res => res.json()).then(data => setMultistatusActive(data.isActive));
+            };
+
+            const fetchDatabases = () => {
+                fetch('/api/db/databases').then(res => res.json()).then(data => {
+                    setDatabases(data);
+                    if (data.current) fetchTables();
+                });
+            };
+
+            const fetchTables = () => {
+                fetch('/api/db/tables').then(res => res.json()).then(setTables);
+            };
+
+            const switchDb = (name) => {
+                fetch('/api/db/switch', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name })
+                }).then(res => res.json()).then(data => {
+                    if (data.success) {
+                        fetchDatabases();
+                        setView('home');
+                        setActiveTable(null);
+                    }
+                });
+            };
+
+            const handleTableClick = (table) => {
+                setActiveTable(table);
+                setView('db');
+                setActiveTab('browse');
+                fetch(`/api/db/data/${table}`).then(res => res.json()).then(setTableData);
+            };
+
+            const saveConfig = () => {
+                fetch('/api/config', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(config)
+                }).then(() => alert("Configuration enregistrée !"));
+            };
+
+            const toggleMultistatus = (active) => {
+                fetch('/api/multistatus/toggle', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ active })
+                }).then(res => res.json()).then(data => {
+                    if (data.success) {
+                        setMultistatusActive(data.isActive);
+                    }
+                });
+            };
+
+            const deleteRow = (table, keyCol, keyVal) => {
+                if (!confirm("Effacer cette ligne définitivement ?")) return;
+                fetch('/api/db/exec', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: `DELETE FROM \`${table}\` WHERE \`${keyCol}\` = ?`, params: [keyVal] })
+                }).then(() => handleTableClick(table));
+            };
+
+            const editCell = (table, keyCol, keyVal, colName, currentVal) => {
+                const newVal = prompt(`Modifier \`${colName}\` pour la ligne où \`${keyCol}\` = ${keyVal} :`, currentVal);
+                if (newVal === null) return;
+                fetch('/api/db/exec', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: `UPDATE \`${table}\` SET \`${colName}\` = ? WHERE \`${keyCol}\` = ?`, params: [newVal, keyVal] })
+                }).then(() => handleTableClick(table));
+            };
+
+            const handleTerminalSubmit = (e) => {
+                e.preventDefault();
+                if (!cmdInput.trim()) return;
+                const cmd = cmdInput.trim();
+                
+                if (cmd.toUpperCase().startsWith('SELECT') || cmd.toUpperCase().startsWith('UPDATE') || cmd.toUpperCase().startsWith('DELETE') || cmd.toUpperCase().startsWith('INSERT')) {
+                   fetch('/api/db/exec', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ query: cmd })
+                    }).then(res => res.json()).then(data => {
+                        console.log(`[TERMINAL] Résultat SQL : ${JSON.stringify(data)}`);
+                    }).catch(err => console.error(`[TERMINAL] Erreur SQL : ${err.message}`));
+                }
+                setCmdInput('');
+            };
+
+            return (
+                <div id="root">
+                    <aside className="pma-sidebar">
+                        <div className="pma-sidebar-header">
+                            <div className="pma-logo-text">
+                                <i className="fas fa-terminal"></i> Selfbot.Admin
+                            </div>
+                            <span className="pma-logo-version">Professional Dashboard v5.0</span>
+                        </div>
+                        
+                        <div className="pma-sidebar-actions">
+                            <div className="pma-action-btn" onClick={() => setView('home')} title="Accueil"><i className="fas fa-home"></i></div>
+                            <div className="pma-action-btn" onClick={() => setTerminalOpen(true)} title="Console"><i className="fas fa-microchip"></i></div>
+                            <div className="pma-action-btn" onClick={() => setView('search')} title="Rechercher"><i className="fas fa-search"></i></div>
+                            <div className="pma-action-btn" onClick={() => setView('docs')} title="Documentation"><i className="fas fa-book"></i></div>
+                        </div>
+
+                        <div className="pma-tree-container">
+                            <div className="px-4 py-2 font-bold text-gray-500 text-[10px] uppercase tracking-wider">Bases de données</div>
+                            {databases.files.map(dbFile => (
+                                <div 
+                                    key={dbFile} 
+                                    className={`pma-tree-item pma-tree-db ${databases.current === dbFile ? 'active' : ''}`} 
+                                    onClick={() => switchDb(dbFile)}
+                                >
+                                    <i className={`fas fa-database ${databases.current === dbFile ? 'text-orange-600' : 'text-gray-400'}`}></i> {dbFile}
+                                </div>
+                            ))}
+                            
+                            {view === 'db' || view === 'home' ? (
+                                <div className="mt-2">
+                                    <div className="px-4 py-2 font-bold text-gray-500 text-[10px] uppercase tracking-wider pl-8">Tables ({databases.current})</div>
+                                    {tables.map(table => (
+                                        <div 
+                                            key={table} 
+                                            className={`pma-tree-item pma-tree-table ${activeTable === table && view === 'db' ? 'active' : ''}`}
+                                            onClick={() => handleTableClick(table)}
+                                        >
+                                            <i className="fas fa-table text-gray-400"></i> {table}
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : null}
+
+                            <div className="pma-tree-item mt-6 border-t border-gray-200 pt-3 font-bold text-gray-400 uppercase text-[10px]">Extensions</div>
+                            <div className={`pma-tree-item ${view === 'social' ? 'active' : ''}`} onClick={() => { setView('social'); fetchFriends(); }}>
+                                <i className="fas fa-users text-orange-500"></i> Social Manager
+                            </div>
+                            <div className={`pma-tree-item ${view === 'config' ? 'active' : ''}`} onClick={() => setView('config')}>
+                                <i className="fas fa-cog text-gray-500"></i> System Config
+                            </div>
+                        </div>
+                    </aside>
+
+                    <div className="pma-main">
+                        <header className="pma-top-bar">
+                            <div className="pma-breadcrumbs">
+                                <div className="pma-breadcrumb-item" onClick={() => setView('home')}><i className="fas fa-microchip"></i> Node: 127.0.0.1</div>
+                                <span className="text-gray-400">»</span>
+                                <div className="pma-breadcrumb-item" onClick={() => setView('home')}><i className="fas fa-database"></i> {databases.current}</div>
+                                {view === 'db' && activeTable && (
+                                    <>
+                                        <span className="text-gray-400">»</span>
+                                        <div className="pma-breadcrumb-item current"><i className="fas fa-table"></i> {activeTable}</div>
+                                    </>
+                                )}
+                                {view !== 'home' && view !== 'db' && (
+                                    <>
+                                        <span className="text-gray-400">»</span>
+                                        <div className="pma-breadcrumb-item current">{view.charAt(0).toUpperCase() + view.slice(1)}</div>
+                                    </>
+                                )}
+                            </div>
+
+                            {view === 'db' && (
+                                <div className="pma-tabs">
+                                    <div className={`pma-tab ${activeTab === 'browse' ? 'active' : ''}`} onClick={() => setActiveTab('browse')}>
+                                        <i className="fas fa-list text-orange-600"></i> Parcourir
+                                    </div>
+                                    <div className={`pma-tab ${activeTab === 'structure' ? 'active' : ''}`} onClick={() => setActiveTab('structure')}>
+                                        <i className="fas fa-table text-green-600"></i> Structure
+                                    </div>
+                                    <div className={`pma-tab ${activeTab === 'sql' ? 'active' : ''}`} onClick={() => setActiveTab('sql')}>
+                                        <i className="fas fa-code text-gray-600"></i> SQL Console
+                                    </div>
+                                </div>
+                            )}
+                        </header>
+
+                        <div className="pma-viewport">
+                            {view === 'home' && (
+                                <div className="animate-in fade-in duration-500">
+                                    <h1 className="text-2xl font-light mb-8 text-gray-800">Panneau de Contrôle <span className="font-bold text-orange-600">Selfbot.Admin</span></h1>
+                                    
+                                    <div className="pma-grid">
+                                        <div className="pma-card">
+                                            <div className="pma-card-header">Environnement SQL ({databases.current})</div>
+                                            <div className="pma-card-body">
+                                                <table className="pma-kv-table">
+                                                    <tbody>
+                                                        <tr><td className="pma-kv-label">Moteur:</td><td>SQLite 3 (via better-sqlite3)</td></tr>
+                                                        <tr><td className="pma-kv-label">Host:</td><td>127.0.0.1</td></tr>
+                                                        <tr><td className="pma-kv-label">Bot Tag:</td><td>{status?.tag}</td></tr>
+                                                        <tr><td className="pma-kv-label">Node Version:</td><td>v24.14.0 (Latest)</td></tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                        <div className="pma-card">
+                                            <div className="pma-card-header">Moniteur Discord</div>
+                                            <div className="pma-card-body">
+                                                <table className="pma-kv-table">
+                                                    <tbody>
+                                                        <tr><td className="pma-kv-label">Session:</td><td><span className={`status-dot status-${status?.connected ? 'online' : 'offline'}`}></span> {status?.connected ? 'Active (Ready)' : 'Disconnected'}</td></tr>
+                                                        <tr><td className="pma-kv-label">Guildes:</td><td>{status?.guilds} cache</td></tr>
+                                                        <tr><td className="pma-kv-label">Relations:</td><td>{status?.friends} amis</td></tr>
+                                                        <tr><td className="pma-kv-label">Temps d'activité:</td><td>{Math.floor(status?.uptime/1000)}s</td></tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {view === 'social' && (
+                                <div className="animate-in slide-in-from-right-4 duration-300">
+                                    <h2 className="text-xl mb-4 font-bold border-b pb-2"><i className="fas fa-users text-orange-600"></i> Dashboard Social (Amis)</h2>
+                                    <div className="bg-white border rounded shadow-sm">
+                                        {friends.length === 0 ? <div className="p-4 text-gray-400 italic">Chargement des amis...</div> : friends.map(friend => (
+                                            <div key={friend.id} className="friend-card hover:bg-gray-50">
+                                                <img src={friend.avatar} className="friend-avatar" />
+                                                <div className="flex-grow">
+                                                    <div className="font-bold text-sm">{friend.tag}</div>
+                                                    <div className="text-[10px] text-gray-500 font-mono">{friend.id}</div>
+                                                </div>
+                                                <div className="flex items-center gap-2">
+                                                    <span className={`status-dot status-${friend.status}`}></span>
+                                                    <span className="text-[10px] font-bold uppercase text-gray-400">{friend.status}</span>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {view === 'db' && activeTable && (
+                                <>
+                                    {activeTab === 'browse' && (
+                                        <div className="pma-data-table-container">
+                                            <table className="pma-data-table">
+                                                <thead>
+                                                    <tr>
+                                                        <th className="w-16">Action</th>
+                                                        {tableData.columns.map(col => <th key={col.name}>{col.name}</th>)}
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {tableData.rows.length === 0 ? <tr><td colSpan={tableData.columns.length + 1} className="p-4 text-center italic text-gray-400">Aucune donnée trouvée</td></tr> : tableData.rows.map((row, i) => {
+                                                        const kp = tableData.columns.find(c=>c.pk===1)?.name || tableData.columns[0]?.name;
+                                                        const kv = row[kp];
+                                                        return (
+                                                            <tr key={i}>
+                                                                <td>
+                                                                    <div className="flex gap-3">
+                                                                        <i className="fas fa-edit text-orange-600 cursor-pointer hover:scale-125" onClick={() => editCell(activeTable, kp, kv, tableData.columns[1]?.name, row[tableData.columns[1]?.name])} title="Éditer"></i>
+                                                                        <i className="fas fa-trash text-red-600 cursor-pointer hover:scale-125" onClick={() => deleteRow(activeTable, kp, kv)} title="Supprimer"></i>
+                                                                    </div>
+                                                                </td>
+                                                                {tableData.columns.map(col => (
+                                                                    <td key={col.name} className="cursor-pointer hover:bg-orange-50" onClick={() => editCell(activeTable, kp, kv, col.name, row[col.name])}>
+                                                                        {String(row[col.name])}
+                                                                    </td>
+                                                                ))}
+                                                            </tr>
+                                                        );
+                                                    })}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    )}
+                                    {activeTab === 'structure' && (
+                                        <div className="pma-data-table-container">
+                                            <table className="pma-data-table">
+                                                <thead>
+                                                    <tr><th>Nom de colonne</th><th>Type</th><th>Null</th><th>Défaut</th><th>PK</th></tr>
+                                                </thead>
+                                                <tbody>
+                                                    {tableData.columns.map((col, i) => (
+                                                        <tr key={i}>
+                                                            <td className="font-bold text-blue-900">{col.name}</td>
+                                                            <td><code className="text-[10px] bg-gray-100 px-1">{col.type}</code></td>
+                                                            <td>{col.notnull ? 'Non' : 'Oui'}</td>
+                                                            <td>{col.dflt_value || 'NULL'}</td>
+                                                            <td className="text-orange-700 font-bold">{col.pk ? 'OUI' : ''}</td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    )}
+                                    {activeTab === 'sql' && (
+                                        <div className="space-y-4">
+                                            <div className="pma-card p-4 bg-gray-50 border-gray-400">
+                                                <p className="mb-2 font-bold text-gray-600">Console SQL direct sur table `{activeTable}` :</p>
+                                                <textarea className="pma-input w-full font-mono h-32" defaultValue={`SELECT * FROM \`${activeTable}\` WHERE 1`} id="sql-text"></textarea>
+                                                <div className="mt-3 flex justify-end">
+                                                    <button className="pma-btn bg-orange-600 text-white border-orange-700 px-8 py-2" onClick={() => {
+                                                        const q = document.getElementById('sql-text').value;
+                                                        fetch('/api/db/exec', {
+                                                            method: 'POST',
+                                                            headers: { 'Content-Type': 'application/json' },
+                                                            body: JSON.stringify({ query: q })
+                                                        }).then(res => res.json()).then(data => alert(JSON.stringify(data)));
+                                                    }}>Exécuter</button>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
+                                </>
+                            )}
+
+                            {view === 'config' && (
+                                <div className="max-w-xl">
+                                    <h2 className="text-xl mb-6 font-bold flex items-center gap-2"><i className="fas fa-sliders text-gray-600"></i> Paramètres Système</h2>
+                                    <div className="pma-card border-l-4 border-l-orange-600">
+                                        <div className="pma-card-body space-y-4">
+                                            <div>
+                                                <label className="block text-[11px] font-bold text-gray-500 mb-1">BOT TOKEN (SECRET)</label>
+                                                <input type="password" value={config.token} onChange={e=>setConfig({...config, token:e.target.value})} className="pma-input w-full font-mono bg-orange-50" />
+                                            </div>
+                                            <div>
+                                                <label className="block text-[11px] font-bold text-gray-500 mb-1">PREFIX COMMANDES</label>
+                                                <input type="text" value={config.prefix} onChange={e=>setConfig({...config, prefix:e.target.value})} className="pma-input w-24" />
+                                            </div>
+
+                                            <div className="flex items-center gap-3 pt-4 border-t border-gray-100">
+                                                <div className={`w-12 h-6 rounded-full relative cursor-pointer transition-colors ${multistatusActive ? 'bg-orange-600' : 'bg-gray-300'}`} onClick={() => toggleMultistatus(!multistatusActive)}>
+                                                    <div className={`absolute top-1 w-4 h-4 bg-white rounded-full transition-all ${multistatusActive ? 'left-7' : 'left-1'}`}></div>
+                                                </div>
+                                                <div>
+                                                    <div className="text-sm font-bold text-gray-700">Multi-Status (Rotation)</div>
+                                                    <div className="text-[10px] text-gray-500">Active la rotation automatique de vos statuts (30s)</div>
+                                                </div>
+                                            </div>
+
+                                            <button onClick={saveConfig} className="pma-btn bg-orange-600 text-white border-none px-6 py-2 mt-4 hover:bg-orange-700 transition-colors">Enregistrer les informations de base</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {view === 'search' && (
+                                <div>
+                                    <h2 className="text-xl mb-4 font-bold"><i className="fas fa-search"></i> Query Designer</h2>
+                                    <div className="pma-search-bar">
+                                        <input type="text" placeholder="Rechercher une ligne, un ID ou un paramètre..." className="pma-input flex-grow" value={searchQuery} onChange={e=>setSearchQuery(e.target.value)} />
+                                        <button className="pma-btn bg-orange-100 border-orange-300">Rechercher</button>
+                                    </div>
+                                    <div className="p-4 bg-orange-50 border border-orange-200 text-orange-800 rounded flex gap-3 items-start">
+                                        <i className="fas fa-info-circle mt-1"></i>
+                                        <p>La recherche s'effectue sur l'ensemble des colonnes de la table active par défaut.</p>
+                                    </div>
+                                </div>
+                            )}
+
+                            {view === 'docs' && (
+                                <div className="max-w-4xl animate-in slide-in-from-bottom-4 duration-500">
+                                    <h2 className="text-xl font-bold border-b-2 border-orange-200 pb-3 mb-6 flex items-center gap-3">
+                                        <i className="fas fa-graduation-cap text-orange-600"></i> Documentation & Tutoriels Vidéo
+                                    </h2>
+                                    
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                        <div className="video-box">
+                                            <header><i className="fas fa-play-circle text-orange-600"></i> Configuration RPC (Tuto)</header>
+                                            <video controls className="w-full bg-black aspect-video">
+                                                <source src="./tuto/video/configrpctuto.mp4" type="video/mp4" />
+                                                Votre navigateur ne supporte pas la vidéo.
+                                            </video>
+                                            <div className="p-3 text-[11px] text-gray-600">Apprenez à configurer vos Riche Presences personnalisées.</div>
+                                        </div>
+                                    </div>
+
+                                    <div className="mt-10 p-5 bg-gray-50 border border-gray-200 rounded">
+                                        <h3 className="font-bold text-gray-800 mb-3 underline">Commandes essentielles :</h3>
+                                        <pre className="bg-white p-3 border text-xs font-mono rounded">
+{`+configrpc [name] [details] [state] [largeimage] [smallimage]
++configspotify [on/off]
++offrpc
++ping`}
+                                        </pre>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {terminalOpen && (
+                            <div className="pma-terminal-container">
+                                <div className="pma-terminal-header" onClick={() => setTerminalOpen(false)}>
+                                    <div className="flex items-center gap-2">
+                                        <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+                                        <span>LIVE CONSOLE - selfbot-admin@system</span>
+                                    </div>
+                                    <div className="flex gap-4">
+                                        <span onClick={(e) => { e.stopPropagation(); setLogs([]); }} title="Clear Local"><i className="fas fa-ban"></i></span>
+                                        <i className="fas fa-chevron-down"></i>
+                                    </div>
+                                </div>
+                                <div className="pma-terminal-body">
+                                    {logs.length === 0 ? (
+                                        <div className="text-gray-500 italic">En attente de nouveaux logs du serveur...</div>
+                                    ) : logs.map((log, i) => (
+                                        <div key={i} className={`mb-1 whitespace-pre-wrap flex gap-2 log-${log.type}`}>
+                                            <span className="text-gray-600 flex-shrink-0">[{log.time}]</span>
+                                            <span>{log.msg}</span>
+                                        </div>
+                                    ))}
+                                    <div ref={logsEndRef} />
+                                </div>
+                                <form onSubmit={handleTerminalSubmit} className="pma-terminal-input-row">
+                                    <span className="pma-terminal-prompt">root@mirore-sb:~#</span>
+                                    <input 
+                                        type="text" 
+                                        className="pma-terminal-input" 
+                                        placeholder="Entrez une commande SQL..."
+                                        value={cmdInput} 
+                                        onChange={e => setCmdInput(e.target.value)} 
+                                        autoFocus
+                                    />
+                                </form>
+                            </div>
+                        )}
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
