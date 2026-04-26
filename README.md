@@ -1,3 +1,9 @@
+<p align="center">
+  <img src="https://img.shields.io/github/stars/KirobotDev/stel-selfbot?style=social">
+  <img src="https://img.shields.io/github/forks/KirobotDev/stel-selfbot?style=social">
+  <img src="https://img.shields.io/github/issues/KirobotDev/stel-selfbot">
+</p>
+
 # Pas fini ( Contributer pour le finir )
 
 ## Selfbot Discord 
