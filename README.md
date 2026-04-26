@@ -50,5 +50,4 @@ npx ts-node index.ts
 <img src="https://contrib.rocks/image?repo=KirobotDev/stel-selfbot"/>
 
 
-> visitors
-> <img src="https://komarev.com/ghpvc/?username=KirobotDev&label=Visiteurs&color=0e75b6&style=flat">
+>  <img src="https://komarev.com/ghpvc/?username=KirobotDev&label=Visiteurs&color=0e75b6&style=flat">
