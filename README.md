@@ -1,3 +1,12 @@
+<p align="center">
+  <img src="https://img.shields.io/github/stars/KirobotDev/stel-selfbot?style=social">
+  <img src="https://img.shields.io/github/forks/KirobotDev/stel-selfbot?style=social">
+  <img src="https://img.shields.io/github/issues/KirobotDev/stel-selfbot">
+</p>
+
+## languages
+<img src="https://github-readme-stats.vercel.app/api/top-langs/?username=KirobotDev&layout=compact&theme=dark">
+
 # Pas fini ( Contributer pour le finir )
 
 ## Selfbot Discord 
@@ -32,4 +41,13 @@ npx ts-node index.ts
 
 \*/
 
+### a propos de kirobotdev.
+<img src="https://github-readme-stats.vercel.app/api?username=KirobotDev&show_icons=true&theme=dark">
+
 ## Fuck Private selfbot code Love open source
+
+## contributors
+<img src="https://contrib.rocks/image?repo=KirobotDev/stel-selfbot"/>
+
+
+>  <img src="https://komarev.com/ghpvc/?username=KirobotDev&label=Visiteurs&color=0e75b6&style=flat">
