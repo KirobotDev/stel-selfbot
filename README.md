@@ -4,7 +4,7 @@
   <img src="https://img.shields.io/github/issues/KirobotDev/stel-selfbot">
 </p>
 
-## languages
+## languages kirobotdev
 <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=KirobotDev&layout=compact&theme=dark">
 
 # Pas fini ( Contributer pour le finir )
