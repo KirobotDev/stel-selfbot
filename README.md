@@ -45,3 +45,6 @@ npx ts-node index.ts
 <img src="https://github-readme-stats.vercel.app/api?username=KirobotDev&show_icons=true&theme=dark">
 
 ## Fuck Private selfbot code Love open source
+
+## contributors
+<img src="https://contrib.rocks/image?repo=KirobotDev/stel-selfbot"/>
