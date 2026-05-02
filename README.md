@@ -28,7 +28,8 @@ npx ts-node index.ts
 ```json
 {
   "token": "token",
-  "prefix": "+" // your prefix
+  "prefix": "+", // your prefix
+  "owner": "id" // ton id discord
 }
 ```
 
